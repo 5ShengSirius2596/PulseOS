@@ -1,0 +1,84 @@
+name: PulseOS
+options:
+  bundleIdPrefix: com.personal
+  deploymentTarget:
+    iOS: "18.0"
+    watchOS: "11.0"
+  xcodeVersion: "16.0"
+
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    MARKETING_VERSION: "1.0.0"
+    CURRENT_PROJECT_VERSION: "1"
+    CODE_SIGN_STYLE: Automatic
+
+targets:
+  PulseOS:
+    type: application
+    platform: iOS
+    sources:
+      - path: PulseOS_iOS
+        excludes:
+          - Info.plist
+          - PulseOS_iOS.entitlements
+      - path: Shared
+    info:
+      path: PulseOS_iOS/Info.plist
+    entitlements:
+      path: PulseOS_iOS/PulseOS_iOS.entitlements
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.personal.pulseos
+        INFOPLIST_FILE: PulseOS_iOS/Info.plist
+        GENERATE_INFOPLIST_FILE: NO
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+    dependencies:
+      - target: PulseOSWatch
+        embed: true
+
+  PulseOSWatch:
+    type: application
+    platform: watchOS
+    sources:
+      - path: PulseOS_Watch
+        excludes:
+          - Info.plist
+          - PulseOS_Watch.entitlements
+      - path: Shared
+    info:
+      path: PulseOS_Watch/Info.plist
+    entitlements:
+      path: PulseOS_Watch/PulseOS_Watch.entitlements
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.personal.pulseos.watchkitapp
+        INFOPLIST_FILE: PulseOS_Watch/Info.plist
+        GENERATE_INFOPLIST_FILE: NO
+        SKIP_INSTALL: YES
+    dependencies:
+      - target: PulseOSWatchWidget
+        embed: true
+
+  PulseOSWatchWidget:
+    type: app-extension
+    platform: watchOS
+    sources:
+      - path: PulseOS_WatchWidget
+        excludes:
+          - Info.plist
+          - PulseOS_WatchWidget.entitlements
+      - path: Shared/Models
+      - path: Shared/Engine/SharedStore.swift
+      - path: Shared/Views/SkinGraphicView.swift
+    info:
+      path: PulseOS_WatchWidget/Info.plist
+    entitlements:
+      path: PulseOS_WatchWidget/PulseOS_WatchWidget.entitlements
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.personal.pulseos.watchkitapp.widget
+        INFOPLIST_FILE: PulseOS_WatchWidget/Info.plist
+        GENERATE_INFOPLIST_FILE: NO
+        SKIP_INSTALL: YES

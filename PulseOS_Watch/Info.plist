@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDisplayName</key>
+	<string>PulseOS</string>
+	<key>NSHealthShareUsageDescription</key>
+	<string>PulseOS 手表端需要读取本地 HRV、热量与睡眠数据以实时刷新表盘状态复杂功能。</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>PulseOS 会在快捷打卡时写入饮水记录。</string>
+	<key>WKApplication</key>
+	<true/>
+	<key>WKCompanionAppBundleIdentifier</key>
+	<string>com.personal.pulseos</string>
+</dict>
+</plist>
