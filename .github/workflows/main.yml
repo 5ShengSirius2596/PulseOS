@@ -1,0 +1,67 @@
+name: Build PulseOS IPA
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+    inputs:
+      bundle_id:
+        description: '全球唯一 Bundle ID（例如 com.sirius.pulseos）'
+        required: true
+        default: 'com.sirius.pulseos'
+
+jobs:
+  build-ipa:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Locate Project & Update Bundle ID
+        env:
+          BID: ${{ github.event.inputs.bundle_id || 'com.sirius.pulseos' }}
+        run: |
+          if [ -f "PulseOS/project.yml" ]; then
+            echo "PROJ_DIR=PulseOS" >> "$GITHUB_ENV"
+            cd PulseOS
+          else
+            echo "PROJ_DIR=." >> "$GITHUB_ENV"
+          fi
+          python3 - "$BID" "group.$BID" << 'PY'
+          import pathlib, sys
+          bid, grp = sys.argv[1], sys.argv[2]
+          for rel in [
+              "project.yml",
+              "Shared/Engine/SharedStore.swift",
+              "PulseOS_iOS/PulseOS_iOS.entitlements",
+              "PulseOS_Watch/PulseOS_Watch.entitlements",
+              "PulseOS_WatchWidget/PulseOS_WatchWidget.entitlements",
+              "PulseOS_Watch/Info.plist",
+          ]:
+              p = pathlib.Path(rel)
+              if p.exists():
+                  txt = p.read_text(encoding="utf-8")
+                  txt = txt.replace("group.com.personal.pulseos", grp).replace("com.personal.pulseos", bid)
+                  p.write_text(txt, encoding="utf-8")
+          PY
+
+      - name: Generate Project & Build Unsigned IPAs
+        run: |
+          cd "$PROJ_DIR"
+          brew install xcodegen
+          xcodegen generate
+          xcodebuild -project PulseOS.xcodeproj -scheme PulseOS -configuration Release -sdk iphoneos -derivedDataPath build_out CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" build
+
+          mkdir -p pkg_full/Payload pkg_ios/Payload
+          cp -R build_out/Build/Products/Release-iphoneos/PulseOS.app pkg_full/Payload/
+          cp -R build_out/Build/Products/Release-iphoneos/PulseOS.app pkg_ios/Payload/
+          rm -rf pkg_ios/Payload/PulseOS.app/Watch
+
+          (cd pkg_full && zip -rq "$GITHUB_WORKSPACE/PulseOS-WithWatch.ipa" Payload)
+          (cd pkg_ios && zip -rq "$GITHUB_WORKSPACE/PulseOS-iOS-Only.ipa" Payload)
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: PulseOS-IPAs
+          path: |
+            PulseOS-WithWatch.ipa
+            PulseOS-iOS-Only.ipa
