@@ -49,8 +49,7 @@ jobs:
           cd "$PROJ_DIR"
           brew install xcodegen
           xcodegen generate
-          xcodebuild -project PulseOS.xcodeproj -scheme PulseOS -configuration Release -sdk iphoneos -derivedDataPath build_out CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" build
-
+          xcodebuild -project PulseOS.xcodeproj -scheme PulseOS -configuration Release -destination "generic/platform=iOS" -derivedDataPath build_out CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" build
           mkdir -p pkg_full/Payload pkg_ios/Payload
           cp -R build_out/Build/Products/Release-iphoneos/PulseOS.app pkg_full/Payload/
           cp -R build_out/Build/Products/Release-iphoneos/PulseOS.app pkg_ios/Payload/
